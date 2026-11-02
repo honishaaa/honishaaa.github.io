@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Psychedelic Cross-Tolerance Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom range slider styling for WebKit */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #818cf8;
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 0 10px rgba(129, 140, 248, 0.5);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #374151;
+            border-radius: 2px;
+        }
+        /* Custom details/summary marker reset */
+        details > summary {
+            list-style: none;
+        }
+        details > summary::-webkit-details-marker {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-950 text-gray-200 font-sans min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-lg transition-all">
+        
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-2xl sm:text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400 mb-2">
+                Tolerance Calculator
+            </h1>
+            <p class="text-sm text-gray-400">LSD & Psilocybin Cross-Tolerance</p>
+        </div>
+
+        <!-- Form Elements -->
+        <div class="space-y-6">
+            
+            <!-- Last Consumed Section -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Last Consumed</label>
+                    <select id="lastSubstance" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                        <option value="LSD">LSD</option>
+                        <option value="Shrooms">Shrooms</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Last Dose (<span id="lastUnit">ug</span>)</label>
+                    <input type="number" id="lastDose" value="100" min="0" step="any" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                </div>
+                <div id="lastStrainContainer" class="hidden sm:col-span-2">
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Strain Potency</label>
+                    <select id="lastStrain" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors text-sm">
+                        <option value="1.0">Standard Cubensis (1.0x)</option>
+                        <option value="1.5">Psilocybe natalensis (1.5x)</option>
+                        <option value="1.5">Penis Envy / APE (1.5x)</option>
+                        <option value="2.0">Enigma / Tidal Wave (2.0x)</option>
+                        <option value="2.5">Panaeolus cyanescens (2.5x)</option>
+                        <option value="3.0">Psilocybe azurescens (3.0x)</option>
+                        <option value="0.2">Truffles (0.2x)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Timeline Section -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Last Consumed Date & Time</label>
+                    <input type="datetime-local" id="lastConsumedDate" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Target Date & Time</label>
+                    <input type="datetime-local" id="targetDate" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors text-sm">
+                </div>
+            </div>
+
+            <hr class="border-gray-800">
+
+            <!-- Next Consumed Section -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Next Consumed</label>
+                    <select id="nextSubstance" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                        <option value="LSD">LSD</option>
+                        <option value="Shrooms" selected>Shrooms</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Desired Effects (<span id="nextUnit">g</span>)</label>
+                    <input type="number" id="desiredDose" value="2.0" min="0" step="any" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                </div>
+                <div id="nextStrainContainer" class="hidden sm:col-span-2">
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Strain Potency</label>
+                    <select id="nextStrain" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors text-sm">
+                        <option value="1.0">Standard Cubensis (1.0x)</option>
+                        <option value="1.5">Psilocybe natalensis (1.5x)</option>
+                        <option value="1.5">Penis Envy / APE (1.5x)</option>
+                        <option value="2.0">Enigma / Tidal Wave (2.0x)</option>
+                        <option value="2.5">Panaeolus cyanescens (2.5x)</option>
+                        <option value="3.0">Psilocybe azurescens (3.0x)</option>
+                        <option value="0.2">Truffles (0.2x)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Advanced Section -->
+            <details class="group bg-gray-800/50 rounded-lg border border-gray-700/50 open:bg-gray-800 transition-colors">
+                <summary class="flex items-center justify-between cursor-pointer p-3 text-sm font-medium text-gray-300 hover:text-white transition-colors">
+                    <div class="flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        Advanced: Conversion Ratio
+                    </div>
+                    <svg class="w-4 h-4 transform transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </summary>
+                <div class="p-4 pt-0 border-t border-gray-700/50 mt-2">
+                    <label class="block text-xs text-gray-400 mb-2">How many grams of Standard Shrooms equal 100ug of LSD?</label>
+                    <div class="flex items-center gap-2">
+                        <input type="number" id="convRatio" value="2.0" min="0.1" step="0.1" class="w-20 bg-gray-900 border border-gray-700 rounded p-1.5 text-sm text-center text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                        <span class="text-sm text-gray-300">g Shrooms = 100ug LSD</span>
+                    </div>
+                </div>
+            </details>
+
+            <!-- Results -->
+            <div class="bg-indigo-900/30 border border-indigo-500/30 rounded-xl p-5 text-center shadow-inner relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
+                <p class="text-gray-300 leading-relaxed" id="resultText">
+                    <!-- Result inserted via JS -->
+                </p>
+            </div>
+
+            <!-- Disclaimer -->
+            <div class="text-[10px] sm:text-xs text-gray-500 leading-tight text-center bg-gray-950/50 p-3 rounded-lg border border-gray-800">
+                <strong class="text-red-400/80">Disclaimer:</strong> Potency of substances (especially biological ones like mushrooms) varies wildly. This calculator uses a generalized mathematical formula to estimate tolerance and does not constitute medical advice. <strong>Start low and go slow.</strong>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const lastSubstanceEl = document.getElementById('lastSubstance');
+        const nextSubstanceEl = document.getElementById('nextSubstance');
+        const lastDoseEl = document.getElementById('lastDose');
+        const desiredDoseEl = document.getElementById('desiredDose');
+        const lastStrainContainer = document.getElementById('lastStrainContainer');
+        const nextStrainContainer = document.getElementById('nextStrainContainer');
+        const lastStrainEl = document.getElementById('lastStrain');
+        const nextStrainEl = document.getElementById('nextStrain');
+        const lastDateEl = document.getElementById('lastConsumedDate');
+        const targetDateEl = document.getElementById('targetDate');
+        const convRatioEl = document.getElementById('convRatio');
+        
+        const lastUnitEl = document.getElementById('lastUnit');
+        const nextUnitEl = document.getElementById('nextUnit');
+        const resultTextEl = document.getElementById('resultText');
+
+        // State variables to remember previous selections for smart defaults
+        let prevLastSub = lastSubstanceEl.value;
+        let prevNextSub = nextSubstanceEl.value;
+
+        // Set Default Dates (Last = 3 days ago, Target = Now)
+        const now = new Date();
+        const threeDaysAgo = new Date(now.getTime() - (3 * 24 * 60 * 60 * 1000));
+        
+        // Format to YYYY-MM-DDTHH:MM for datetime-local
+        const formatDateTime = (date) => {
+            const tzOffset = date.getTimezoneOffset() * 60000;
+            return (new Date(date - tzOffset)).toISOString().slice(0, 16);
+        };
+        
+        lastDateEl.value = formatDateTime(threeDaysAgo);
+        targetDateEl.value = formatDateTime(now);
+
+        // Event listeners for calculating on any change
+        const inputs = [lastSubstanceEl, nextSubstanceEl, lastDoseEl, desiredDoseEl, convRatioEl, lastStrainEl, nextStrainEl, lastDateEl, targetDateEl];
+        inputs.forEach(input => {
+            input.addEventListener('input', handleUpdate);
+            input.addEventListener('change', handleUpdate);
+        });
+
+        function handleUpdate(e) {
+            updateUnits(e);
+            calculate();
+        }
+
+        function updateUnits(e) {
+            const currentLastSub = lastSubstanceEl.value;
+            const currentNextSub = nextSubstanceEl.value;
+            
+            lastUnitEl.innerText = currentLastSub === 'LSD' ? 'ug' : 'g';
+            nextUnitEl.innerText = currentNextSub === 'LSD' ? 'ug' : 'g';
+
+            // Toggle Strain Dropdowns Visibility
+            if (currentLastSub === 'Shrooms') {
+                lastStrainContainer.classList.remove('hidden');
+            } else {
+                lastStrainContainer.classList.add('hidden');
+            }
+
+            if (currentNextSub === 'Shrooms') {
+                nextStrainContainer.classList.remove('hidden');
+            } else {
+                nextStrainContainer.classList.add('hidden');
+            }
+
+            // Smart defaults: If user switches substance, update the placeholder to a standard dose 
+            // if they haven't explicitly set complex values, just to keep UI smooth.
+            if (e && e.target === lastSubstanceEl && prevLastSub !== currentLastSub) {
+                if (currentLastSub === 'LSD' && lastDoseEl.value === "2.0") lastDoseEl.value = 100;
+                else if (currentLastSub === 'Shrooms' && lastDoseEl.value === "100") lastDoseEl.value = 2.0;
+            }
+            if (e && e.target === nextSubstanceEl && prevNextSub !== currentNextSub) {
+                if (currentNextSub === 'LSD' && desiredDoseEl.value === "2.0") desiredDoseEl.value = 100;
+                else if (currentNextSub === 'Shrooms' && desiredDoseEl.value === "100") desiredDoseEl.value = 2.0;
+            }
+
+            prevLastSub = currentLastSub;
+            prevNextSub = currentNextSub;
+        }
+
+        function calculate() {
+            const lastSub = lastSubstanceEl.value;
+            const nextSub = nextSubstanceEl.value;
+            
+            const lastDose = parseFloat(lastDoseEl.value) || 0;
+            const desiredDose = parseFloat(desiredDoseEl.value) || 0;
+            const ratio = parseFloat(convRatioEl.value) || 2.0;
+            
+            const lastStrainMult = lastSub === 'Shrooms' ? parseFloat(lastStrainEl.value) : 1;
+            const nextStrainMult = nextSub === 'Shrooms' ? parseFloat(nextStrainEl.value) : 1;
+
+            // Calculate days difference from dates (fractional down to the minute)
+            const lastDate = new Date(lastDateEl.value);
+            const targetDate = new Date(targetDateEl.value);
+            let days = (targetDate - lastDate) / (1000 * 60 * 60 * 24);
+            
+            // Default to 0 if the math breaks or if the target date is set BEFORE the last consumed date
+            if (isNaN(days) || days < 0) days = 0;
+
+            // 1. Calculate Tolerance Percentage
+            let tolPercent = 0;
+            if (days === 0) {
+                tolPercent = 180; // Standard empirical value for immediate redosing
+            } else if (days >= 14) {
+                tolPercent = 0;
+            } else {
+                // Derived tolerance formula
+                tolPercent = Math.max(0, 280.059565 * Math.pow(days, -0.412565956) - 100);
+            }
+
+            // 2. Normalize the last dose to Standard Cubensis (if it was shrooms)
+            let normalizedLastDose = lastSub === 'Shrooms' ? lastDose * lastStrainMult : lastDose;
+
+            // 3. Convert Last Dose to Next Dose Equivalent Base (Standard)
+            let convertedLastDoseBase = normalizedLastDose;
+            if (lastSub === 'LSD' && nextSub === 'Shrooms') {
+                convertedLastDoseBase = normalizedLastDose * (ratio / 100);
+            } else if (lastSub === 'Shrooms' && nextSub === 'LSD') {
+                convertedLastDoseBase = normalizedLastDose * (100 / ratio);
+            }
+
+            // 4. Calculate Extra Required in BASE units of the target substance
+            let extraBase = (convertedLastDoseBase * tolPercent) / 100;
+            
+            // 5. Calculate Final Dose adjusted for target strain
+            let finalDose;
+            if (nextSub === 'Shrooms') {
+                let extraTargetStrain = extraBase / nextStrainMult;
+                finalDose = desiredDose + extraTargetStrain;
+            } else {
+                finalDose = desiredDose + extraBase;
+            }
+
+            // 6. Update UI
+            const unit = nextSub === 'LSD' ? 'ug' : 'g';
+            
+            resultTextEl.innerHTML = `
+                To feel the effects of <strong class="text-white">${desiredDose} ${unit}</strong> of ${nextSub}, 
+                you should take roughly 
+                <span class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400 block mt-3 drop-shadow-md">
+                    ${finalDose.toFixed(1)} ${unit}
+                </span>
+            `;
+        }
+
+        // Initial Setup on load
+        updateUnits();
+        calculate();
+    </script>
+</body>
+</html>
